@@ -58,8 +58,8 @@ function App() {
     const maxVal = Math.max(...vals, 1);
 
     return {
-      id: id,
-      namaDisplay: master.nama,
+      id: '*******', // id,
+      namaDisplay: 'Example User', // master.nama || 'Unknown Account',
       broker: master.broker || 'Broker Info',
       platform: dataServer?.platform || (realData.mt4[id] ? "MT4" : "MT5"),
       isConnected: !!dataServer,
