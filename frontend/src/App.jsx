@@ -249,7 +249,7 @@ function App() {
       <div style={{ maxWidth: '1300px', margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
           <div>
-            <h1 style={{ color: theme.text, fontSize: '22px', fontWeight: '800', margin: 0 }}>DASHBOARD MetaTrader</h1>
+            <h1 style={{ color: theme.text, fontSize: '22px', fontWeight: '800', margin: 0 }}>DASHBOARD METATRADER</h1>
             <p style={{ color: theme.subText, fontSize: '12px' }}>Realtime Monitoring System</p>
           </div>
           <button onClick={() => setDarkMode(!darkMode)} style={{ background: theme.cardBg, border: `1px solid ${theme.border}`, padding: '8px 16px', borderRadius: '30px', color: theme.text, cursor: 'pointer', fontWeight: 'bold', fontSize: '11px' }}>
