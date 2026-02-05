@@ -1,6 +1,6 @@
 __pycache__/
 
-frontend/src/accounts.js
+frontend/src/data/accounts.js
 
 .env
 *.env

@@ -22,15 +22,20 @@ string GetMonthName(int m) {
 
 void OnStart()
 {
-   Print(">>> MT4 MONITORING (MODE: NET DEPOSIT) STARTED <<<");
+   Print(">>> MT4 MONITORING STARTED <<<");
 
    while(!IsStopped()) 
    {
       datetime now = TimeCurrent();
-      int m1 = TimeMonth(now)-1; int y1 = TimeYear(now); if(m1<1){m1=12;y1--;}
+
+      int m0 = TimeMonth(now); int y0 = TimeYear(now);
+
+      int m1 = m0-1; int y1 = y0; if(m1<1){m1=12;y1--;}
       int m2 = m1-1; int y2 = y1; if(m2<1){m2=12;y2--;}
       int m3 = m2-1; int y3 = y2; if(m3<1){m3=12;y3--;}
       
+      double profit_m0=0;
+
       double profit_m1=0, profit_m2=0, profit_m3=0;
       bool act_m1=false, act_m2=false, act_m3=false;
       double tot_depo=0, tot_wd=0, tot_prof=0, pure_init=0;
@@ -52,7 +57,11 @@ void OnStart()
                if(OrderMagicNumber() > 0) algo++;
                
                int tm = TimeMonth(OrderCloseTime()); int ty = TimeYear(OrderCloseTime());
-               if(tm==m1 && ty==y1) { profit_m1+=p; act_m1=true; }
+               if(tm==m0 && ty==y0) { 
+                  profit_m0 += p; 
+               }
+
+               else if(tm==m1 && ty==y1) { profit_m1+=p; act_m1=true; }
                else if(tm==m2 && ty==y2) { profit_m2+=p; act_m2=true; }
                else if(tm==m3 && ty==y3) { profit_m3+=p; act_m3=true; }
             }
@@ -111,6 +120,9 @@ void OnStart()
            "\"withdrawals\": " + DoubleToString(tot_wd, 2) + ","
            "\"deposits\": " + DoubleToString(tot_depo, 2) + "," 
            "\"profit_total\": " + DoubleToString(tot_prof, 2) + ","
+
+           "\"profit_current_month\": " + DoubleToString(profit_m0, 2) + ","
+           
            "\"win_rate\": " + DoubleToString(wins*100.0/MathMax(1,trades), 1) + ","
            "\"loss_rate\": " + DoubleToString(losses*100.0/MathMax(1,trades), 1) + ","
            "\"algo_ratio\": " + DoubleToString(algo*100.0/MathMax(1,trades), 1) + ","

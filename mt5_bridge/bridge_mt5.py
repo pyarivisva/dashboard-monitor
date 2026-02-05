@@ -26,12 +26,20 @@ def hitung_statistik_history():
     from_date = datetime(2015, 1, 1)
     deals = mt5.history_deals_get(from_date, datetime.now())
     
-    if deals is None or len(deals) == 0: return {}
+    if deals is None: 
+        return None
 
+    # Jika deals kosong tapi return tidak None (artinya memang akun baru/belum ada trade)
+    if len(deals) == 0:
+        return {
+            "total_deposit": 0, "pure_initial_deposit": 0, "top_up_only": 0,
+            "total_withdrawal": 0, "total_profit_history": 0, "profit_current_month": 0,
+            "win_rate": 0, "loss_rate": 0, "algo_ratio": 0, "trade_activity": 0, "monthly_history": []
+        }
+        
     total_profit = 0.0
     total_deposit = 0.0
-    total_withdrawal = 0.0
-    
+    total_withdrawal = 0.0  
     pure_initial_deposit = 0.0
     first_deposit_found = False
 
@@ -75,12 +83,16 @@ def hitung_statistik_history():
         })
         current_pointer = prev_month_end.replace(day=1)
 
+    # Profit Bulan (ongoing)
+    profit_current_running = get_monthly_profit(deals, now.year, now.month)
+    
     return {
         "total_deposit": total_deposit,       
         "pure_initial_deposit": pure_initial_deposit, 
         "top_up_only": top_up_only,           
         "total_withdrawal": total_withdrawal,
         "total_profit_history": total_profit,
+        "profit_current_month": profit_current_running,
         "win_rate": (win_count / trade_count * 100) if trade_count > 0 else 0,
         "loss_rate": ((trade_count - win_count) / trade_count * 100) if trade_count > 0 else 0,
         "algo_ratio": (algo_count / trade_count * 100) if trade_count > 0 else 0,
@@ -102,6 +114,11 @@ def main():
         if info is not None:
             stats = hitung_statistik_history()
 
+            if stats is None:
+                print("⚠️ MT5 Busy (History Skip)...")
+                time.sleep(1) # Tunggu sebentar lalu coba lagi
+                continue
+            
             profit_total = stats.get('total_profit_history', 0)
             deposits_all = stats.get('total_deposit', 0)
             withdrawals = stats.get('total_withdrawal', 0)
@@ -134,6 +151,7 @@ def main():
                 # DATA RAW
                 "deposits": deposits_all, 
                 "profit_total": profit_total,
+                "profit_current_month": stats.get('profit_current_month', 0),
                 "win_rate": stats.get('win_rate', 0),
                 "loss_rate": stats.get('loss_rate', 0),
                 "algo_ratio": stats.get('algo_ratio', 0),
@@ -143,7 +161,7 @@ def main():
             
             try:
                 requests.post(NODE_SERVER_URL, json=payload)
-                print(f"📡 Update {info.login}: Growth {growth:.2f}% | Inv: {custom_investment:.2f}")
+                print(f"📡 Update {info.login}: Growth {growth:.2f}% | This Month: {stats.get('profit_current_month', 0):.2f}")
             except Exception as e:
                 print(f"⚠️ Gagal kirim data {info.login}:", e)
         
